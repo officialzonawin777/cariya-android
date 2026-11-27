@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace 'id.cariya.app'
+    namespace 'app.cariya.id'
     compileSdk 36
 
     defaultConfig {
-        applicationId 'id.cariya.app'
+        applicationId 'app.cariya.id'
         minSdk 24
         targetSdk 36
         versionCode 1
