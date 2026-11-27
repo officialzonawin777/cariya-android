@@ -1,4 +1,4 @@
-package id.cariya.app;
+package app.cariya.id;
 
 import android.app.Activity;
 import android.os.Bundle;
