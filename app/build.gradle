@@ -1,16 +1,33 @@
+
 plugins {
     id 'com.android.application'
 }
 
 android {
     namespace 'id.cariya.app'
-    compileSdk 35
+    compileSdk 36
 
     defaultConfig {
         applicationId 'id.cariya.app'
         minSdk 23
-        targetSdk 35
+        targetSdk 36
         versionCode 1
         versionName '1.0'
+    }
+
+    signingConfigs {
+        release {
+            storeFile file(System.getenv('CARIYA_KEYSTORE_PATH'))
+            storePassword System.getenv('CARIYA_KEYSTORE_PASSWORD')
+            keyAlias System.getenv('CARIYA_KEY_ALIAS')
+            keyPassword System.getenv('CARIYA_KEY_PASSWORD')
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled false
+        }
     }
 }
