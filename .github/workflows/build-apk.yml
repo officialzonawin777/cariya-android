@@ -1,10 +1,19 @@
 
-name: Build Cariya Android APK
+name: Build CARIYA Release APK
 
 on:
   workflow_dispatch:
   push:
     branches: ["main"]
+
+permissions:
+  contents: read
+
+env:
+  CARIYA_KEYSTORE_PATH: ${{ github.workspace }}/cariya-upload-key.jks
+  CARIYA_KEYSTORE_PASSWORD: ${{ secrets.CARIYA_KEYSTORE_PASSWORD }}
+  CARIYA_KEY_ALIAS: ${{ secrets.CARIYA_KEY_ALIAS }}
+  CARIYA_KEY_PASSWORD: ${{ secrets.CARIYA_KEY_PASSWORD }}
 
 jobs:
   build:
@@ -17,21 +26,36 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: "17"
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
 
+      - name: Install Android SDK
+        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Restore signing key
+        env:
+          KEYSTORE_BASE64: ${{ secrets.CARIYA_KEYSTORE_BASE64 }}
+        run: |
+          test -n "$KEYSTORE_BASE64"
+          test -n "$CARIYA_KEYSTORE_PASSWORD"
+          test -n "$CARIYA_KEY_ALIAS"
+          test -n "$CARIYA_KEY_PASSWORD"
+          echo "$KEYSTORE_BASE64" | base64 --decode > "$CARIYA_KEYSTORE_PATH"
+
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.9'
+          gradle-version: "8.13"
 
-      - name: Build debug APK
-        run: gradle --no-daemon assembleDebug
+      - name: Build Release APK
+        run: gradle --no-daemon assembleRelease
 
-      - name: Upload APK
+      - name: Upload Release APK
         uses: actions/upload-artifact@v4
         with:
-          name: Cariya-Android-APK
-          path: app/build/outputs/apk/debug/app-debug.apk
+          name: CARIYA-Release-APK
+          path: app/build/outputs/apk/release/*.apk
+          if-no-files-found: error
+          retention-days: 30
